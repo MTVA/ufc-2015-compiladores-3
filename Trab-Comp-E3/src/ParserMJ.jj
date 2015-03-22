@@ -34,6 +34,6 @@ public class ParserMJ{  public static void main(String args []) throws ParseEx
 | < STRING: "String" >
 | < THIS: "this" >
 | < PRINT: "System.out.println" >       
-| <CLASS
+| < CLASS: "class" > 
 }
 TOKEN :{  < CONSTANT : (< DIGIT >)+ >| < #DIGIT : [ "0"-"9" ] >}int one_line() :{}{  sum() ";"  {    return 0;  }| ";"  {    return 1;  }}void sum() :{}{  term()  (    (      < PLUS >    | < MINUS >    )    term()  )*}void term() :{}{  unary()  (    (      < MULTIPLY >    | < DIVIDE >    )    unary()  )*}void unary() :{}{  < MINUS > element()| element()}void element() :{}{  < CONSTANT >| "(" sum() ")"}

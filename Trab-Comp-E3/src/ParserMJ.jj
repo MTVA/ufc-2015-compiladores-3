@@ -42,10 +42,22 @@ void Program() :{}
 	MainClass() ClassDecl()*}
 void MainClass() :
 {}{
-  < CLASS > <ID > < LBRACE > < PLUBLIC > < STACTIC > < VOID > < MAIN >
+  < CLASS > < ID > < LBRACE > < PLUBLIC > < STACTIC > < VOID > < MAIN >
   < LPAREN > < STRING > < LSQPAREN > < RSQPAREN > < ID > < RPAREN >
   < LBRACE > Statement() < RBRACE > < RBRACE >
 }
 
+void ClassDecl() :{}
+{  < CLASS > < ID > < LBRACE > VarDecl()* MethodDecl()* < RBRACE > |
+  < CLASS > < ID > < EXTENDS > < ID > < LBRACE > VarDecl()* MethodDecl()* < RBRACE >
+}  
+void VarDecl() :
+{}{ < TYPE > < ID > < SEMICOLON >
+}
 
+void MethodDecl() :
+{}
+{
+	< PUBLIC > < TYPE > < ID > < LPAREN > FormatList() < RPAREN >
+	< LBRACE > VarDecl()* Statement()* < RETURN > Exp() < SEMICOLON > < RBRACE >}
 int one_line() :{}{  sum() ";"  {    return 0;  }| ";"  {    return 1;  }}void sum() :{}{  term()  (    (      < PLUS >    | < MINUS >    )    term()  )*}void term() :{}{  unary()  (    (      < MULTIPLY >    | < DIVIDE >    )    unary()  )*}void unary() :{}{  < MINUS > element()| element()}void element() :{}{  < CONSTANT >| "(" sum() ")"}

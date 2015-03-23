@@ -104,7 +104,7 @@ TOKEN :
 void Program() :
 {}
 {
-	MainClass() ClassDecl()*
+	MainClass() (ClassDecl())*
 }
 
 void MainClass() :
@@ -118,8 +118,8 @@ void MainClass() :
 void ClassDecl() :
 {}
 {
-  < CLASS > < ID > < LBRACE > VarDecl()* MethodDecl()* < RBRACE > |
-  < CLASS > < ID > < EXTENDS > < ID > < LBRACE > VarDecl()* MethodDecl()* < RBRACE >
+  < CLASS > < ID > < LBRACE > (VarDecl())* (MethodDecl())* < RBRACE > |
+  < CLASS > < ID > < EXTENDS > < ID > < LBRACE > (VarDecl())* (MethodDecl())* < RBRACE >
 }  
 
 void VarDecl() :
@@ -132,7 +132,7 @@ void MethodDecl() :
 {}
 {
 	< PUBLIC > < TYPE > < ID > < LPAREN > FormatList() < RPAREN >
-	< LBRACE > VarDecl()* Statement()* < RETURN > Exp() < SEMICOLON > < RBRACE >
+	< LBRACE > (VarDecl())* (Statement())* < RETURN > Exp() < SEMICOLON > < RBRACE >
 }
 
 void FormalList() : {}

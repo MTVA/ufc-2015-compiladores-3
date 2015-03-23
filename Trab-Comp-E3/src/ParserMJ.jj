@@ -142,8 +142,6 @@ void FormalList() : {}
 
 }
 
-
-
 void FormalRest() : {}
 {
   < COMMA > Type() < ID >
@@ -170,6 +168,30 @@ void Statement() : {}
 | < ID > < LSQPAREN > Exp() < RSQPAREN > < ASSIGN > Exp() < SEMICOLON >
 }
 
+void Exp() : {}
+{  Exp() < OPERATOR > Exp()
+| Exp() < LSQPAREN > Exp() < RSQPAREN >
+| Exp() . < LENGTH >
+| Exp() . < ID > < LPAREN > ExpList() < RPAREN >
+| < INTEGER_LITERAL >
+| < TRUE >
+| < FALSE >
+| < ID >
+| < THIS >
+| < NEW > < INTEGER > < LSQPAREN > Exp() < RPAREN >
+| < NEW > < ID > < LPAREN > < RPAREN >
+| < NOT > Exp()
+| < LPAREN > Exp() < RPAREN >
+}
+
+void ExpList() : {}
+{  Exp() (ExpRest())*
+| 
+} 
+
+void ExpRest() : {}
+{
+  ,Exp()}
 
 int one_line() :
 {}

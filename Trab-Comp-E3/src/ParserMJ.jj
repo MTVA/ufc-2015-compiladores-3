@@ -60,6 +60,7 @@ SKIP :
 TOKEN : /* OPERATORS */
 {
   < SEMICOLON: ";" >
+| < COMMA: "," >
 | < DOT: "." >
 | < LPAREN: "(" >
 | < RPAREN: ")" >

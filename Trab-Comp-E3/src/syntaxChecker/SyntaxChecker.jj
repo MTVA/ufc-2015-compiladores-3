@@ -1,0 +1,163 @@
+/**
+ * JavaCC template file created by SF JavaCC plugin 1.5.17+ wizard for JavaCC 1.5.0+
+ */
+options
+{
+  JDK_VERSION = "1.5";
+  static = true;
+}
+
+PARSER_BEGIN(MiniJavaParser)
+package syntaxChecker;
+import syntaxtree.*;
+
+public class MiniJavaParser{
+  	
+	public static void main(String[] args) {
+      try {
+         Program root = new MiniJavaParser(System.in).Goal();
+      }
+      catch (ParseException e) {
+         System.out.println(e.toString());
+      }
+   }
+}
+
+PARSER_END(MiniJavaParser)
+
+
+SKIP: { " "| "\t" | "\n" | "\r"}
+TOKEN:
+{
+  < CLASS : "class" >
+| < PUBLIC : "public" >
+| < VOID : "void" >
+| < MAIN : "main" >
+| < STATIC : "static" >
+| < EXTENDS : "extends" >
+| < RETURN : "return" >
+| < SYSPRINT : "System.out.println" >
+| < LENGTH : "length" >
+| < THIS : "this" >
+| < NEW : "new" >
+| < LBRACE : "{" >
+| < RBRACE : "}" >
+| < LPAREN : "(" >
+| < RPAREN : ")" >
+| < LSQPAREN : "[" >
+| < RSQPAREN : "]" >
+| < IF : "if" >
+| < ELSE : "else" >
+| < WHILE : "while" >
+| < STRING : "String" >
+| < INTEGER : "int" >
+| < BOOLEAN : "boolean" >
+| < TRUE : "true" >
+| < FALSE : "false">
+| < TIMES : "*" >
+| < SUM : "+" >
+| < SUB : "-" >
+| < AND : "&&" >
+| < LT : "<" >
+| < EQUAL : "=" >
+| < NOT : "!" >
+| < SEMICOLON : ";" >
+| < DOT : "." >
+| < COMMA : "," >
+| < #DIGIT : ["0" - "9"] > 
+| < #CHAR : [ "a" - "z"] | ["A" - "Z"] | ["_"] >
+| < INTEGER_LITERAL : (< DIGIT >)+ >
+| < IDENTIFIER : < CHAR > (< CHAR > | < DIGIT >)* >
+}
+
+Program Goal() : {MainClass m; ClassDeclList cl = new ClassDeclList(); ClassDecl c;}
+	{m=MainClass() (c=ClassDeclaration() {cl.addElement(c);} )* < EOF >
+	{return new Program(m, cl);}
+}
+MainClass MainClass() : {Identifier i1; Identifier i2; Statement s;}
+{
+	"class" i1=Identifier() "{" "public" "static" "void" "main" "(" "String" "[" "]" i2=Identifier() ")" "{" s=Statement() "}" "}"
+	{return new MainClass(i1, i2, s); }
+}
+ClassDecl ClassDeclaration() : {Identifier i; Identifier j; VarDeclList vl = new VarDeclList(); VarDecl v; MethodDeclList ml = new MethodDeclList(); MethodDecl m;}
+{	"class" i=Identifier()
+    (
+       "{" ( v=VarDeclaration(){vl.addElement(v);})* ( m=MethodDeclaration(){ml.addElement(m);})* "}" {return new ClassDeclSimple(i, vl, ml);}
+    |  "extends" j=Identifier() "{" ( v=VarDeclaration(){vl.addElement(v);})* ( m=MethodDeclaration(){ml.addElement(m);})* "}" {return new ClassDeclExtends(i, j, vl, ml);}
+    )
+}
+
+MethodDecl MethodDeclaration() : {Type t; Identifier i; FormalList fl; VarDeclList vl = new VarDeclList(); VarDecl v; StatementList sl = new StatementList(); Statement s; Exp e;}
+{
+    "public" t=Type() i=Identifier() "(" fl=FormalList() ")" "{" ( LOOKAHEAD(2)v=VarDeclaration(){vl.addElement(v);})* ( s=Statement() {sl.addElement(s);})* "return" e=Expression() ";" "}"
+    {return new MethodDecl(t, i, fl, vl, sl, e);}
+}
+
+VarDecl VarDeclaration() : {Type t; Identifier i;}
+{
+	t=Type() i=Identifier() ";"
+	{return new VarDecl(t, i);}
+}
+
+FormalList FormalList(): {Type t; Identifier i; Formal f; Formal f1;FormalList fl= new FormalList();}
+{
+	(t=Type() i=Identifier() {f1 = new Formal(t, i); fl.addElement(f1);} (f=FormalRest(){fl.addElement(f);})* )?
+	{return fl;} 
+}
+
+Formal FormalRest():{Type t; Identifier i;}
+{
+	"," t=Type() i=Identifier()
+	{return new Formal(t, i);}
+}
+
+Statement Statement() : {StatementList sl = new StatementList(); Statement s; Exp e; Exp e1; Exp e2; Statement s1; Statement s2; Identifier i;}
+{
+  		"{" ( s=Statement(){sl.addElement(s);})* "}"								{return new Block(sl);}
+    |	"System.out.println" "(" e=Expression() ")" ";"								{return new Print(e);}
+    |	"while" "(" e=Expression() ")" s=Statement()								{return new While(e, s);}
+    |	"if" "(" e=Expression() ")" s1=Statement() "else" s2=Statement()			{return new If(e, s1, s2);}
+    |	LOOKAHEAD(2) i=Identifier() "=" e=Expression() ";"							{return new Assign(i, e);}
+    |	LOOKAHEAD(2) i=Identifier() "[" e1=Expression() "]" "=" e2=Expression() ";"	{return new ArrayAssign(i, e1, e2);}
+}
+
+Type Type() : {Identifier i;}
+{
+  	     LOOKAHEAD(2) "int" "[" "]" 	{return new IntArrayType();}
+    |	"boolean"					{return new BooleanType();}
+    |	LOOKAHEAD(2) "int"			{return new IntegerType();}
+    |	i=Identifier()				{return new IdentifierType(i.s);}
+}
+
+Exp Expression():{String s; Identifier i; Exp e; Exp er;}
+{
+    s=<INTEGER_LITERAL>.image									er=ExpressionRec(new IntegerLiteral(Integer.valueOf(s))) {return er;}
+    |	"true"													er=ExpressionRec(new True()) {return er;}
+    |	"false"													er=ExpressionRec(new False()) {return er;}
+    |	"this"													er=ExpressionRec(new This()) {return er;}
+    |	i=Identifier()											er=ExpressionRec(new IdentifierExp(i.s)) {return er;}
+    |	LOOKAHEAD(2) "new" "int" "[" e=Expression() "]"			er=ExpressionRec(new NewArray(e)) {return er;}
+    |	LOOKAHEAD(2) "new" i=Identifier() "(" ")"				er=ExpressionRec(new NewObject(i)) {return er;}
+    |	"!" e=Expression()										er=ExpressionRec(new Not(e)) {return er;}
+    |	"(" e=Expression() ")"									er=ExpressionRec(e) {return er;}
+}
+
+Exp ExpressionRec(Exp e1):{Exp e2; Identifier i; ExpList el = new ExpList(); Exp e3; Exp e4; Exp er;}
+{
+    "&&" e2=Expression()																		er=ExpressionRec(new And(e1, e2)) {return er;}
+    | "+" e2=Expression()																		er=ExpressionRec(new Plus(e1, e2))	{return er;}
+	| "*" e2=Expression()																		er=ExpressionRec(new Times(e1, e2))	{return er;}		| "[" e2=Expression() "]"																	er=ExpressionRec(new ArrayLookup(e1, e2))	{return er;}
+	| "-" e2=Expression()																		er=ExpressionRec(new Minus(e1, e2))	{return er;}
+    | "<" e2=Expression()																		er=ExpressionRec(new LessThan(e1, e2))	{return er;}
+	| LOOKAHEAD(2) "." "length"																	er=ExpressionRec(new ArrayLength(e1)) {return er;}
+	| LOOKAHEAD(2) "." i=Identifier() "(" ( e3=Expression() {el.addElement(e3);} ( "," e4=Expression() {el.addElement(e4);})* )? ")"			er=ExpressionRec(new Call(e1, i, el))	{return er;}
+	|	{}	{return e1;}
+}
+
+
+Identifier Identifier() : {String s;}
+{
+  s = < IDENTIFIER >.image 		{ return new Identifier(s);}
+}
+
+

@@ -36,13 +36,13 @@ public class TypeDepthFirstVisitor implements TypeVisitor {
     {
     	Symbol s = keys.nextElement();
     	ClassDeclaration cd = (ClassDeclaration) table.get(s.toString());
-    	System.out.println("class " + cd.i + "{");
+//    	System.out.println("class " + cd.i + "{");
     	Enumeration<Symbol> classKeys = cd.vt.keys();
     	while( classKeys.hasMoreElements() ){
     		
     		Symbol vk = classKeys.nextElement();
 	    	String t = (String) cd.vt.get(vk.toString());
-	    	System.out.println(t + " " + vk.toString());
+//	    	System.out.println(t + " " + vk.toString());
     	}
     	
     	Enumeration<Symbol> methodKeys = cd.mt.keys();
@@ -51,24 +51,24 @@ public class TypeDepthFirstVisitor implements TypeVisitor {
 	    	MethodDeclaration md = (MethodDeclaration) cd.mt.get(mk.toString());
 	    	String ident = md.i;
 	    	String retur = md.r;
-	    	System.out.println(retur + " " + ident + "(");
+//	    	System.out.println(retur + " " + ident + "(");
 	    	Enumeration<Symbol> formalKeys = md.pt.keys();
 	    	while( formalKeys.hasMoreElements() ){
 	    		Symbol pk = formalKeys.nextElement();
 		    	String t = (String) md.pt.get(pk.toString());
-		    	System.out.println(t + " " + pk.toString());
+//		    	System.out.println(t + " " + pk.toString());
 	    	}
-	    	System.out.println("){");
+//	    	System.out.println("){");
 	    	Enumeration<Symbol> varKeys = md.vt.keys();
 	    	while( varKeys.hasMoreElements() ){
 	    		Symbol vk = varKeys.nextElement();
 		    	String t = (String) md.vt.get(vk.toString());
-		    	System.out.println(t + " " + vk.toString());
+//		    	System.out.println(t + " " + vk.toString());
 	    	}
 	    	
-	    	System.out.println("}");
+//	    	System.out.println("}");
     	}
-    	System.out.println("}");
+//    	System.out.println("}");
     }
     
     table.endScope();
@@ -160,7 +160,6 @@ public class TypeDepthFirstVisitor implements TypeVisitor {
         n.fl.elementAt(i).accept(this);
     }
     for ( int i = 0; i < n.vl.size(); i++ ) {
-    	System.out.println(n.vl.elementAt(i).i.s);
         n.vl.elementAt(i).accept(this);
     }
     for ( int i = 0; i < n.sl.size(); i++ ) {
